@@ -35,7 +35,16 @@ import Data.List
 -}
 
 --TYPES
-data Dist a = Dist [(Rational, a)] deriving (Show)
+data Dist a = Dist [(Rational, a)]
+    deriving(Show)
+instance (Eq a) => Eq (Dist a) where 
+    Dist [] == Dist [] = True 
+    Dist x == Dist y = 
+        if length x /= length y 
+            then False 
+        else if head x `elem` y 
+            then tail x == filter (\a -> a /= head x) y
+        else False    
 --data DistElement a = Node Rational a deriving (Show)
 --type Dist a = [DistElement a]
 data Coin = Heads | Tails deriving (Show, Eq)
