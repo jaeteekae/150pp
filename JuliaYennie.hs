@@ -85,12 +85,16 @@ probabilityQuestionA_d12 = d12
 
 --Join two distribution lists using mapping function f
 --TODO: only one dist as input? DistElement a, or just a? get rid of Distelement, just arrays. no foldables
-join :: Dist a -> Dist b -> (Dist b -> (Rational, a) -> Dist c) -> Dist c
-join d1 d2 f = concat (map (f d2) d1)
+dmap :: ((Rational, a)->(Rational, b)) -> Dist a -> Dist b
+dmap f dist = let Dist xs = dist
+              in Dist (map f xs)
+
+--join :: Dist a -> Dist b -> (Dist b -> (Rational, a) -> Dist c) -> Dist c
+--join d1 d2 f = concat (dmap (f d2) d1)
 
 --Multiplies probabilities & cons
-sq :: Dist a -> (Rational, a) -> Dist a
-sq d2s (prob, d) = map (\(a, b) -> (prob*a, b++d)) d2s
+sq :: Dist [a] -> (Rational, [a]) -> Dist [a]
+sq d2s (prob, d) = dmap (\(a, b) -> (prob*a, b++d)) d2s
 {-}
 --Multiplies probabilities & tuple
 sqdiff :: [DistElement t] -> DistElement t1 -> [DistElement (t, t1)]
