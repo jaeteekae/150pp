@@ -1,7 +1,9 @@
+{-# OPTIONS -Wall -Werror -fno-warn-name-shadowing #-}
 module PPOne
 where
 
 import Data.Ratio
+import Data.List
 
 {-
 
@@ -33,40 +35,44 @@ import Data.Ratio
 -}
 
 --TYPES
-data DistElement a = Node Rational a deriving (Show)
-type Dist a = [DistElement a]
+data Dist a = Dist [(Rational, a)] deriving (Show)
+--data DistElement a = Node Rational a deriving (Show)
+--type Dist a = [DistElement a]
 data Coin = Heads | Tails deriving (Show, Eq)
 data Die = D4 | D6 | D8 | D10 | D12 | D20 deriving (Show, Eq)
 
 --COIN
-coins :: Dist [Coin]
-coins = [Node (1%2) [Heads], Node (1%2) [Tails]]
+coins :: Dist Coin
+coins = Dist [(1%2, Heads), (1%2, Tails)]
+coinlist :: Dist [Coin]
+coinlist = Dist [(1%2, [Heads]), (1%2, [Tails])]
 
---MAKE A DIE
-dx :: Integer -> Dist Integer
-dx x = let ratio = 1 % x in map (Node ratio) [1..x]
+--MAKE A DISTRIBUTION
+uniform :: [a] -> Dist a
+uniform xs = let l = genericLength xs
+             in Dist(map (\x -> ((1%l)::Rational, x)) xs)
 
 --DICE
 d1 :: Dist Integer
-d1 = dx 1
+d1 = uniform [1..1]
 d2 :: Dist Integer
-d2 = dx 2
+d2 = uniform [1..2]
 d3 :: Dist Integer
-d3 = dx 3
+d3 = uniform [1..3]
 d4 :: Dist Integer
-d4 = dx 4
+d4 = uniform [1..4]
 d5 :: Dist Integer
-d5 = dx 5
+d5 = uniform [1..5]
 d6 :: Dist Integer
-d6 = dx 6
+d6 = uniform [1..6]
 d8 :: Dist Integer
-d8 = dx 8
+d8 = uniform [1..8]
 d10 :: Dist Integer
-d10 = dx 10
+d10 = uniform [1..10]
 d12 :: Dist Integer
-d12 = dx 12
+d12 = uniform [1..12]
 d20 :: Dist Integer
-d20 = dx 20
+d20 = uniform [1..20]
 
 --Probability distribution of one d6 roll
 probabilityQuestionA_d6 :: Dist Integer
@@ -78,13 +84,14 @@ probabilityQuestionA_d12 = d12
 -------FUNCTIONS FOR CREATING JOINT DISTRIBUTIONS-------
 
 --Join two distribution lists using mapping function f
-join :: Dist a -> Dist b -> (Dist b -> DistElement a -> Dist c) -> Dist c
+--TODO: only one dist as input? DistElement a, or just a? get rid of Distelement, just arrays. no foldables
+join :: Dist a -> Dist b -> (Dist b -> (Rational, a) -> Dist c) -> Dist c
 join d1 d2 f = concat (map (f d2) d1)
 
 --Multiplies probabilities & cons
-sq :: [DistElement [a]] -> DistElement [a] -> [DistElement [a]]
-sq d2s (Node c d) = map (\(Node a b) -> Node (c*a) (b++d)) d2s
-
+sq :: Dist a -> (Rational, a) -> Dist a
+sq d2s (prob, d) = map (\(a, b) -> (prob*a, b++d)) d2s
+{-}
 --Multiplies probabilities & tuple
 sqdiff :: [DistElement t] -> DistElement t1 -> [DistElement (t, t1)]
 sqdiff d2s (Node c d) = map (\(Node a b) -> Node (c*a) (b,d)) d2s
@@ -318,3 +325,4 @@ expected_money_per_tsheet =
     
 expected_money :: Rational
 expected_money = foldl (+) 0 expected_money_per_tsheet
+-}
