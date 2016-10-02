@@ -35,31 +35,31 @@ import Data.List
 -}
 
 --TYPES
-data Dist a = Dist [(Rational, a)]
-    deriving(Show)
-instance (Eq a) => Eq (Dist a) where 
-    Dist [] == Dist [] = True 
-    Dist x == Dist y = 
-        if length x /= length y 
-            then False 
-        else if head x `elem` y 
-            then tail x == filter (\a -> a /= head x) y
-        else False    
+type Dist a = [(Rational, a)]
+--instance (Eq a) => Eq (Dist a) where 
+--    [] == [] = True 
+--    x == y = 
+--        if length x /= length y 
+--            then False 
+--        else if head x `elem` y 
+--            then tail x == filter (\a -> a /= head x) y
+--        else False    
 --data DistElement a = Node Rational a deriving (Show)
 --type Dist a = [DistElement a]
+
 data Coin = Heads | Tails deriving (Show, Eq)
 data Die = D4 | D6 | D8 | D10 | D12 | D20 deriving (Show, Eq)
 
 --COIN
 coins :: Dist Coin
-coins = Dist [(1%2, Heads), (1%2, Tails)]
+coins = [(1%2, Heads), (1%2, Tails)]
 coinlist :: Dist [Coin]
-coinlist = Dist [(1%2, [Heads]), (1%2, [Tails])]
+coinlist = [(1%2, [Heads]), (1%2, [Tails])]
 
 --MAKE A DISTRIBUTION
 uniform :: [a] -> Dist a
 uniform xs = let l = genericLength xs
-             in Dist(map (\x -> ((1%l)::Rational, x)) xs)
+             in map (\x -> ((1%l)::Rational, x)) xs
 
 --DICE
 d1 :: Dist Integer
@@ -94,26 +94,28 @@ probabilityQuestionA_d12 = d12
 
 --Join two distribution lists using mapping function f
 --TODO: only one dist as input? DistElement a, or just a? get rid of Distelement, just arrays. no foldables
-dmap :: ((Rational, a)->(Rational, b)) -> Dist a -> Dist b
-dmap f dist = let Dist xs = dist
-              in Dist (map f xs)
+--dmap :: ((Rational, a)->(Rational, b)) -> Dist a -> Dist b
+--dmap f dist = let Dist xs = dist
+--              in Dist (map f xs)
 
---join :: Dist a -> Dist b -> (Dist b -> (Rational, a) -> Dist c) -> Dist c
+join :: Dist a -> Dist b -> (Dist b -> (Rational, a) -> Dist c) -> Dist c
 --join d1 d2 f = concat (dmap (f d2) d1)
+join d1 d2 f = concat (map (f d2) d1)
 
 --Multiplies probabilities & cons
 sq :: Dist [a] -> (Rational, [a]) -> Dist [a]
-sq d2s (prob, d) = dmap (\(a, b) -> (prob*a, b++d)) d2s
-{-}
+sq d2s (prob, d) = map (\(a, b) -> (prob*a, b++d)) d2s
+
 --Multiplies probabilities & tuple
-sqdiff :: [DistElement t] -> DistElement t1 -> [DistElement (t, t1)]
-sqdiff d2s (Node c d) = map (\(Node a b) -> Node (c*a) (b,d)) d2s
+sqdiff :: Dist a -> (Rational, b) -> Dist (a,b)
+sqdiff d2s (p1, b) = map (\(p2, a) -> (p1*p2, (a,b))) d2s
 
 --D2 distribution depends on D1 value
-dep :: (Eq a, Num a) => [DistElement [a1]] -> DistElement a -> [DistElement [a1]]
-dep d2s (Node c 1) = map (\(Node a b) -> Node (c*a) b) d2s
-dep d2s (Node c n) = join d2s (dep d2s (Node c (n-1))) sq
-
+--dep :: (Eq a, Num a) => [DistElement [a1]] -> DistElement a -> [DistElement [a1]]
+--dep :: (Eq b, Num b) => Dist a -> (Rational, b) -> Dist a
+--dep d2s (p1, 1) = map (\(p2, b) ->  (p1*p2, b)) d2s
+--dep d2s (p, n) = join d2s (dep d2s (p, (n-1))) sq
+{-}
 --Adding two values
 add :: Num a => [DistElement a] -> DistElement a -> [DistElement a]
 add d2s (Node c d) = map (\(Node a b) -> Node (c*a) (d+b)) d2s
