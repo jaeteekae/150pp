@@ -231,13 +231,11 @@ testlist = [(1%2, [2 .. 24]), (1%2, [16..18]), (1%2, [19..21]), (1%2, [19..22])]
 -- compareSixteen :: (Num b, Num a1, Foldable t) => t a -> (a -> a1 -> Bool) -> b
 compareSixteen :: [Integer] -> (Integer -> Integer -> Bool) -> Integer 
 compareSixteen sumList op = foldl(\acc x -> if (op x 16) then acc + 1 else acc) 0 sumList
-{-
+
 -- Int -> Dist List -> Operator -> Int 
--- determineHowMany :: (Eq a, Num a, Num a2, Foldable t) => a -> [DistElement (t a1)] -> (a1 -> a2 -> Bool) -> [DistElement (t a1)]
---determineHowMany :: Integer -> Dist a -> (Integer -> Integer -> Bool) -> Integer 
-determineHowMany numOverUnder dlist op = filter (\(_, sumList) -> (compareSixteen sumList op) == numOverUnder) dlist
-
-
+determineHowMany :: Integer -> Dist [Integer] -> (Integer -> Integer -> Bool) -> Dist [Integer] 
+determineHowMany numOverUnder dlist op = filter (\(_, sumList) -> compareSixteen sumList op == numOverUnder) dlist
+{-
 -- Adds: probability of the two D12s added PLUS probabilty of drawing 2 D12s
 -- Int -> Dist List -> Operator -> Rational
 -- tallyProb :: (Num a2, Foldable t) => Integer -> [DistElement (t a1)] -> (a1 -> a2 -> Bool) -> Rational
