@@ -234,7 +234,7 @@ compareSixteen sumList op = foldl(\acc x -> if (op x 16) then acc + 1 else acc) 
 
 -- Int -> Dist List -> Operator -> Int 
 -- determineHowMany :: (Eq a, Num a, Num a2, Foldable t) => a -> [DistElement (t a1)] -> (a1 -> a2 -> Bool) -> [DistElement (t a1)]
-determineHowMany :: Integer -> Dist a -> (Integer -> Integer -> Bool) -> Integer 
+determineHowMany :: Integer -> Dist [Integer] -> (Integer -> Integer -> Bool) -> Dist [Integer] 
 determineHowMany numOverUnder dlist op = filter (\(_, sumList) -> compareSixteen sumList op == numOverUnder) dlist
 
 
