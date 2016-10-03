@@ -234,11 +234,9 @@ compareSixteen sumList op = foldl(\acc x -> if (op x 16) then acc + 1 else acc) 
 {-
 -- Int -> Dist List -> Operator -> Int 
 -- determineHowMany :: (Eq a, Num a, Num a2, Foldable t) => a -> [DistElement (t a1)] -> (a1 -> a2 -> Bool) -> [DistElement (t a1)]
-determineHowMany :: Integer -> Dist a -> (Integer -> Integer -> Bool) -> Integer 
-determineHowMany numOverUnder dlist op = filter (\(_, sumList) -> compareSixteen sumList op == numOverUnder) dlist
+--determineHowMany :: Integer -> Dist a -> (Integer -> Integer -> Bool) -> Integer 
+determineHowMany numOverUnder dlist op = filter (\(_, sumList) -> (compareSixteen sumList op) == numOverUnder) dlist
 
-
-{-
 
 -- Adds: probability of the two D12s added PLUS probabilty of drawing 2 D12s
 -- Int -> Dist List -> Operator -> Rational
@@ -251,16 +249,16 @@ tallyProbabilityN = tallyProb 3 d12s_30rolls (>)
 tallyProbabilityO :: Rational
 tallyProbabilityO = tallyProb 16 d12s_30rolls (<)
 --NOTE: theoretically, tallyProbabilityN is the correct probability. However, we could not get the calculation to terminate
-
+-}
 -- Dist List of probability and tuple (numUnder16, numEqual16, numOver16)
-createTallySheet :: (Num a, Num t1, Num t2, Num t3, Ord a, Foldable t) => [DistElement (t a)] -> [DistElement (t1, t2, t3)]
+createTallySheet :: Dist [Integer] -> Dist (Integer, Integer, Integer)
 createTallySheet dist = 
-    map (\(Node prob sumList) -> 
+    map (\(prob, sumList) -> 
         let 
             underSixteen = compareSixteen sumList (<)
             equalSixteen = compareSixteen sumList (==)
             overSixteen  = compareSixteen sumList (>)
-        in (Node prob (underSixteen, equalSixteen, overSixteen)))
+        in (prob, (underSixteen, equalSixteen, overSixteen)))
     dist
 
 
@@ -342,10 +340,10 @@ filter_tallies lt eq gt =
 expected_money_per_tsheet :: [Rational]
 expected_money_per_tsheet = 
     map (\(a,b,c) -> 
-            foldr (\(Node r payout) prev ->
+            foldr (\(r, payout) prev ->
             payout*r + prev) 0 (filter_tallies a b c))
     tuple30
     
 expected_money :: Rational
 expected_money = foldl (+) 0 expected_money_per_tsheet
--}
+
