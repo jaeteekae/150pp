@@ -140,7 +140,7 @@ cxc = join coinlist coinlist sq
 distd6 :: Dist [Coin]
 distd6 = join d6 coinlist dep
 
-{-}
+
 -------FILTERING A DISTRIBUTION-------
 
 -- Determine how many heads/tails are flipped in the list  
@@ -162,10 +162,9 @@ probSum numFlips flipType distType = toRational (sum (map (\(prob, _) -> prob) (
 
 probabilityQuestionF :: Rational
 probabilityQuestionF = probSum 3 Heads distd6
--}
 
 -------TALLY SHEET-------
-
+{-
 --Pot of dice distribution
 pot :: Dist (Die, Dist Integer)
 pot = [((9%46), (D6,d6)), ((9%46) (D8,d8)), ((14%46) (D12,d12)), ((14%46) (D20,d20))]
@@ -175,7 +174,7 @@ pot = [((9%46), (D6,d6)), ((9%46) (D8,d8)), ((14%46) (D12,d12)), ((14%46) (D20,d
 --probDraw :: [Dist (Die, Die, [Dist Int])]
 probDraw :: Dist (Die, Die, [DistElement Integer])
 probDraw = let draw2 = join pot pot dice_tup
-            in map (\(prob, (d1, d2, dist)) -> (prob, (d1, d2, (mergeRolls sameRoll dist)))) draw2
+            in map (\(prob, (d1, d2, dist)) -> (prob, (d1, d2, (mergeEvents sameEvent dist)))) draw2
 
 --Probability of drawing two d12s, filtered to decrease problem size
 twoD12s :: Dist (Die, Die, [DistElement Integer])
@@ -186,36 +185,36 @@ b :: (Die, Die, [DistElement Integer])
 
 twoD12s_rollProbs :: Dist Integer
 twoD12s_rollProbs = join d12 d12 add
+-}
 
-{-}
 
 
---Functions to use with mergeRolls
-sameRoll :: Eq a => DistElement a -> DistElement a -> Bool
-sameRoll (Node _ b) (Node _ d) = b==d
-sameTally :: (Eq a, Eq a1, Eq a2) => DistElement (a, a1, a2) -> DistElement (a, a1, a2) -> Bool
-sameTally (Node _ (l1, e1, g1)) (Node _ (l2, e2, g2)) = (l1==l2)&&(e1==e2)&&(g1==g2)
-sameDice :: Eq a => DistElement (a, a, t) -> DistElement (a, a, t1) -> Bool
-sameDice (Node _ (d_a1, d_a2, _)) (Node _ (d_b1, d_b2, _)) = ((d_a1==d_b1)&&(d_a2==d_b2))||((d_a1==d_b2)&&(d_a2==d_b1))
+--Functions to use with mergeEvents
+sameEvent :: Eq a => (Rational, a) -> (Rational, a) -> Bool
+sameEvent (_, x) (_, y) = x==y
+sameTally :: (Eq a, Eq a1, Eq a2) => (Rational, (a, a1, a2)) -> (Rational, (a, a1, a2)) -> Bool
+sameTally (_, (l1, e1, g1)) (_, (l2, e2, g2)) = (l1==l2)&&(e1==e2)&&(g1==g2)
+sameDicePair :: Eq a => (Rational, (a, a, t)) -> (Rational, (a, a, t1)) -> Bool
+sameDicePair (_, (d_a1, d_a2, _)) (_, (d_b1, d_b2, _)) = ((d_a1==d_b1)&&(d_a2==d_b2))||((d_a1==d_b2)&&(d_a2==d_b1))
 
 --For merging distribution Nodes with the same value
-mergeRolls :: (DistElement t -> DistElement t -> Bool) -> [DistElement t] -> [DistElement t]
-mergeRolls f xs = case xs' of
+mergeEvents :: ((Rational, a) -> (Rational, a) -> Bool) -> Dist a -> Dist a
+mergeEvents f xs = case xs' of
              [] -> []
              x'@(_:[]) -> x'
              x'@(_:_:[]) -> x'
-             _'@(x1:x2:xs) -> x1:(mergeRolls f (x2:xs))
+             _'@(x1:x2:xs) -> x1:(mergeEvents f (x2:xs))
     where xs' = aux (head xs) (tail xs) []
           aux acc [] temp = (acc:temp)
           aux acc (y:ys) temp = if (f acc y)
                                 then 
-                                    let (Node p1 r1) = acc
-                                        (Node p2 _) = y
-                                    in aux (Node (p1+p2) r1) (ys ++ temp) []
+                                    let (p1, r1) = acc
+                                        (p2, _) = y
+                                    in aux (p1+p2, r1) (ys ++ temp) []
                                 else aux acc ys (y:temp)
-
-compactD12s :: Dist Integer
-compactD12s = mergeRolls sameRoll twoD12s_rollProbs 
+{-}
+--compactD12s :: Dist Integer
+compactD12s = mergeEvents sameEvent twoD12s_rollProbs 
 
 twoD12s_rollProbsl :: Dist [Integer]
 twoD12s_rollProbsl = map (\(Node prob a) -> (Node prob [a])) compactD12s
@@ -310,7 +309,7 @@ complete_tallies :: [DistElement [DistElement (Integer, Integer, Integer)]]
 complete_tallies = 
     map (\(Node r dist) ->
             let tallies = createTallySheet dist
-                merged_tallies = mergeRolls sameTally tallies 
+                merged_tallies = mergeEvents sameTally tallies 
             in (Node r merged_tallies))
     complete_dist
 
