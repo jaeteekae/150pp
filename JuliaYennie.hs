@@ -162,29 +162,33 @@ probSum numFlips flipType distType = toRational (sum (map (\(prob, _) -> prob) (
 
 probabilityQuestionF :: Rational
 probabilityQuestionF = probSum 3 Heads distd6
+-}
 
 -------TALLY SHEET-------
 
 --Pot of dice distribution
 pot :: Dist (Die, Dist Integer)
-pot = [Node (9%46) (D6,d6), Node (9%46) (D8,d8), Node (14%46) (D12,d12), Node (14%46) (D20,d20)]
+pot = [((9%46), (D6,d6)), ((9%46) (D8,d8)), ((14%46) (D12,d12)), ((14%46) (D20,d20))]
 
 --WE ARE DOING WITH REPLACEMENT 
 --Probability of drawing any two dice
 --probDraw :: [Dist (Die, Die, [Dist Int])]
 probDraw :: Dist (Die, Die, [DistElement Integer])
 probDraw = let draw2 = join pot pot dice_tup
-            in map (\(Node prob (d1, d2, dist)) -> (Node prob (d1, d2, (mergeRolls sameRoll dist)))) draw2
+            in map (\(prob, (d1, d2, dist)) -> (prob, (d1, d2, (mergeRolls sameRoll dist)))) draw2
 
 --Probability of drawing two d12s, filtered to decrease problem size
 twoD12s :: Dist (Die, Die, [DistElement Integer])
-twoD12s = filter (\(Node _ (a,b,_)) -> ((a==D12) && (b == D12))) probDraw
+twoD12s = filter (\(_ ,(a,b,_)) -> ((a==D12) && (b == D12))) probDraw
 d12Prob :: Rational
 b :: (Die, Die, [DistElement Integer])
-(Node d12Prob b) = head twoD12s
+(d12Prob, b) = head twoD12s
 
 twoD12s_rollProbs :: Dist Integer
 twoD12s_rollProbs = join d12 d12 add
+
+{-}
+
 
 --Functions to use with mergeRolls
 sameRoll :: Eq a => DistElement a -> DistElement a -> Bool
