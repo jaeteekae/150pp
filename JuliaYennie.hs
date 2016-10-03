@@ -226,20 +226,20 @@ d12s_30rolls = multiple_join d20s_list 30
 
 testlist :: Dist [Integer]
 testlist = [(1%2, [2 .. 24]), (1%2, [16..18]), (1%2, [19..21]), (1%2, [19..22])]
-{-
+
 -- Int List -> Operator -> Int 
-compareSixteen :: (Num b, Num a1, Foldable t) => t a -> (a -> a1 -> Bool) -> b
+-- compareSixteen :: (Num b, Num a1, Foldable t) => t a -> (a -> a1 -> Bool) -> b
 compareSixteen sumList op = foldl(\acc x -> if (op x 16) then acc + 1 else acc) 0 sumList
 
 -- Int -> Dist List -> Operator -> Int 
-determineHowMany :: (Eq a, Num a, Num a2, Foldable t) => a -> [DistElement (t a1)] -> (a1 -> a2 -> Bool) -> [DistElement (t a1)]
-determineHowMany numOverUnder dlist op = filter (\(Node _ sumList) -> compareSixteen sumList op == numOverUnder) dlist
+-- determineHowMany :: (Eq a, Num a, Num a2, Foldable t) => a -> [DistElement (t a1)] -> (a1 -> a2 -> Bool) -> [DistElement (t a1)]
+determineHowMany numOverUnder dlist op = filter (\(_, sumList) -> compareSixteen sumList op == numOverUnder) dlist
 
 -- Adds: probability of the two D12s added PLUS probabilty of drawing 2 D12s
 -- Int -> Dist List -> Operator -> Rational
-tallyProb :: (Num a2, Foldable t) => Integer -> [DistElement (t a1)] -> (a1 -> a2 -> Bool) -> Rational
-tallyProb numOverUnder dlist op = toRational(sum (map(\(Node prob _)->prob)(determineHowMany numOverUnder dlist op))) + d12Prob
-
+-- tallyProb :: (Num a2, Foldable t) => Integer -> [DistElement (t a1)] -> (a1 -> a2 -> Bool) -> Rational
+tallyProb numOverUnder dlist op = toRational(sum (map(\(prob, _)->prob)(determineHowMany numOverUnder dlist op))) + d12Prob
+{-
 -- Rational
 tallyProbabilityN :: Rational
 tallyProbabilityN = tallyProb 3 d12s_30rolls (>)
