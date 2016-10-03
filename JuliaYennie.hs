@@ -177,15 +177,15 @@ pot = [((9%46), (D6,d6)), ((9%46) (D8,d8)), ((14%46) (D12,d12)), ((14%46) (D20,d
 --WE ARE DOING WITH REPLACEMENT 
 --Probability of drawing any two dice
 --probDraw :: [Dist (Die, Die, [Dist Int])]
-probDraw :: Dist (Die, Die, [DistElement Integer])
+probDraw :: Dist (Die, Die, Dist Integer)
 probDraw = let draw2 = join pot pot dice_tup
             in map (\(prob, (d1, d2, dist)) -> (prob, (d1, d2, (mergeRolls sameRoll dist)))) draw2
 
 --Probability of drawing two d12s, filtered to decrease problem size
-twoD12s :: Dist (Die, Die, [DistElement Integer])
+twoD12s :: Dist (Die, Die, Dist Integer)
 twoD12s = filter (\(_ ,(a,b,_)) -> ((a==D12) && (b == D12))) probDraw
 d12Prob :: Rational
-b :: (Die, Die, [DistElement Integer])
+b :: (Die, Die, Dist Integer)
 (d12Prob, b) = head twoD12s
 
 twoD12s_rollProbs :: Dist Integer
