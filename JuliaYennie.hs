@@ -128,7 +128,7 @@ multiple_join dist 1 = dist
 multiple_join dist n = multiple_join (join dist dist sq) (n-1)
 
 --A join specifically for adding rolling two dice together
-dice_tup :: (Num a, Num b) => Dist (a, Dist b) -> (Rational, (a, Dist b)) -> Dist (a, a, Dist b)
+dice_tup :: Num b => Dist (a, Dist b) -> (Rational, (a, Dist b)) -> Dist (a, a, Dist b)
 dice_tup d2s (p1, (die1,dist1)) =
     map (\(p2, (die2,dist2)) -> (p1*p2, (die1,die2,(join dist1 dist2 add)))) d2s
 
@@ -163,19 +163,17 @@ probSum numFlips flipType distType = toRational (sum (map (\(prob, _) -> prob) (
 
 --The probability of seeing 3 heads when a d6 roll determines the number of coin tosses
 -- Rational
-
 probabilityQuestionF :: Rational
 probabilityQuestionF = probSum 3 Heads distd6
 
 -------TALLY SHEET-------
-{-
+
 --Pot of dice distribution
 pot :: Dist (Die, Dist Integer)
 pot = [((9%46), (D6,d6)), ((9%46), (D8,d8)), ((14%46), (D12,d12)), ((14%46), (D20,d20))]
 
 --WE ARE DOING WITH REPLACEMENT 
 --Probability of drawing any two dice
---probDraw :: [Dist (Die, Die, [Dist Int])]
 probDraw :: Dist (Die, Die, Dist Integer)
 probDraw = let draw2 = join pot pot dice_tup
             in map (\(prob, (d1, d2, dist)) -> (prob, (d1, d2, (mergeEvents sameEvent dist)))) draw2
@@ -187,7 +185,7 @@ twoD12s = filter (\(_ ,(a,b,_)) -> ((a==D12) && (b == D12))) probDraw
 d12Prob :: Rational
 b :: (Die, Die, Dist Integer)
 (d12Prob, b) = head twoD12s
--}
+
 twoD12s_rollProbs :: Dist Integer
 twoD12s_rollProbs = join d12 d12 add
 
@@ -262,10 +260,10 @@ createTallySheet dist =
 
 
 -------GAMBLING-------
-
+-}
 max3ps :: Dist a -> Rational -> Rational -> Rational -> (Rational, Rational, Rational)
 max3ps [] p1 p2 p3 = (p1, p2, p3)
-max3ps ((Node r _):xs) p1 p2 p3 =
+max3ps ((r, _):xs) p1 p2 p3 =
     if r > p1
         then max3ps xs r p1 p2
         else if r > p2
@@ -297,7 +295,7 @@ noRepeats (x:xs)  = if x `elem` xs
 -- The list with all possible tuples (LT, E, GT)
 tuple30 :: [(Integer, Integer, Integer)]
 tuple30 = noRepeats(makeTuples 30 30 0 0)
-
+{-}
 --Dist of all pairs of dice rolls with 30 rolls
 complete_dist :: [DistElement [DistElement [Integer]]]
 complete_dist =
