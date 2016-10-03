@@ -99,6 +99,8 @@ probabilityQuestionA_d12 = d12
 --dmap :: ((Rational, a)->(Rational, b)) -> Dist a -> Dist b
 --dmap f dist = let Dist xs = dist
 --              in Dist (map f xs)
+--join d1 d2 f = concat (dmap (f d2) d1)
+
 
 join :: Dist a -> Dist b -> (Dist b -> (Rational, a) -> Dist c) -> Dist c
 join d1 d2 f = concat (map (f d2) d1)
@@ -142,26 +144,26 @@ cxc = join coins coins sq
 distd6 :: [DistElement [Coin]]
 distd6 = join d6 coins dep
 
-
+-}
 -------FILTERING A DISTRIBUTION-------
 
 -- Determine how many heads/tails are flipped in the list  
 -- Coin -> Coin list -> int 
-determine :: (Eq a, Num b, Foldable t) => a -> t a -> b
+determine :: Coin -> [Coin] -> Int 
 determine ht coinlist = foldl (\acc x -> if (x==ht) then acc + 1 else acc) 0 coinlist  
 
 -- Int -> Coin -> Dist list -> Dist list 
-makeFinalList :: (Eq a, Eq a1, Num a, Foldable t) => a -> a1 -> [DistElement (t a1)] -> [DistElement (t a1)]
-makeFinalList numFlips flipType dlist = filter (\(Node _ flipList) -> (determine flipType flipList == numFlips)) dlist
+makeFinalList :: Int -> Coin -> Dist [Coin] -> Dist [Coin]
+makeFinalList numFlips flipType dlist = filter (\(_, flipList) -> (determine flipType flipList == numFlips)) dlist
 
 -- Adds all of the probabilities of flipping numFlips Heads/Tails
 -- Int -> Coin -> Dist List -> Rational
-probSum :: (Eq a1, Foldable t) => Integer -> a1 -> [DistElement (t a1)] -> Rational
-probSum numFlips flipType distType = toRational (sum (map (\(Node prob _) -> prob) (makeFinalList numFlips flipType distType)))
+probSum :: Int -> Coin -> Dist [Coin] -> Rational
+probSum numFlips flipType distType = toRational (sum (map (\(prob, _) -> prob) (makeFinalList numFlips flipType distType)))
 
 --The probability of seeing 3 heads when a d6 roll determines the number of coin tosses
 -- Rational
-
+{-}
 probabilityQuestionF :: Rational
 probabilityQuestionF = probSum 3 Heads distd6
 
