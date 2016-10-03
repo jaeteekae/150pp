@@ -37,6 +37,7 @@ import Data.List
 --TYPES
 type Dist a = [(Rational, a)]
 
+dEq :: Eq a => Dist a -> Dist a -> Bool
 dEq [] [] = True
 dEq x y = 
     if length x /= length y 
@@ -100,7 +101,6 @@ probabilityQuestionA_d12 = d12
 --              in Dist (map f xs)
 
 join :: Dist a -> Dist b -> (Dist b -> (Rational, a) -> Dist c) -> Dist c
---join d1 d2 f = concat (dmap (f d2) d1)
 join d1 d2 f = concat (map (f d2) d1)
 
 --Multiplies probabilities & cons
@@ -112,24 +112,24 @@ sqdiff :: Dist a -> (Rational, b) -> Dist (a,b)
 sqdiff d2s (p1, b) = map (\(p2, a) -> (p1*p2, (a,b))) d2s
 
 --D2 distribution depends on D1 value
---dep :: (Eq a, Num a) => [DistElement [a1]] -> DistElement a -> [DistElement [a1]]
---dep :: (Eq b, Num b) => Dist a -> (Rational, b) -> Dist a
---dep d2s (p1, 1) = map (\(p2, b) ->  (p1*p2, b)) d2s
---dep d2s (p, n) = join d2s (dep d2s (p, (n-1))) sq
-{-}
+dep :: (Eq b, Num b) => Dist [a] -> (Rational, b) -> Dist [a]
+dep d2s (p1, 1) = map (\(p2, x) ->  (p1*p2, x)) d2s
+dep d2s (p, n) = join d2s (dep d2s (p, n-1)) sq
+
 --Adding two values
-add :: Num a => [DistElement a] -> DistElement a -> [DistElement a]
-add d2s (Node c d) = map (\(Node a b) -> Node (c*a) (d+b)) d2s
+add :: Num a => Dist a -> (Rational, a) -> Dist a
+add d2s (p1, x) = map (\(p2, y) -> (p1*p2, x+y)) d2s
 
 --Join a distribution with itself n times
-multiple_join :: [DistElement [a1]] -> Integer -> [DistElement [a1]]
+multiple_join :: Dist [a] -> Integer -> Dist [a]
 multiple_join dist 1 = dist
 multiple_join dist n = multiple_join (join dist dist sq) (n-1)
-
+{-}
 --A join specifically for adding rolling two dice together
-dice_tup :: Num a => [DistElement (t1, [DistElement a])] -> DistElement (t, [DistElement a]) -> [DistElement (t, t1, [DistElement a])]
-dice_tup d2s (Node c (die1,dist1)) =
-    map (\(Node a (die2,dist2)) -> Node (c*a) (die1,die2,(join dist1 dist2 add))) d2s
+--dice_tup :: Num a => [DistElement (t1, [DistElement a])] -> DistElement (t, [DistElement a]) -> [DistElement (t, t1, [DistElement a])]
+dice_tup :: Num a => Dist (a, Dist b) -> (Rational, (a, Dist b)) -> Dist (a, a, Dist b)
+dice_tup d2s (p1, (die1,dist1)) =
+    map (\(p2, (die2,dist2)) -> (p1*p2, (die1,die2,(join dist1 dist2 add)))) d2s
 
 
 ------EXAMPLES OF JOINT DISTRIBUTIONS------
