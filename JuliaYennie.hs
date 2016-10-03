@@ -60,6 +60,9 @@ uniform :: [a] -> Dist a
 uniform xs = let l = genericLength xs
              in map (\x -> ((1%l)::Rational, x)) xs
 
+listify :: Dist a -> Dist [a]
+listify dist = map (\(prob, a) -> (prob, [a])) dist
+
 --DICE
 d1 :: Dist Integer
 d1 = uniform [1..1]
@@ -130,6 +133,7 @@ dice_tup d2s (p1, (die1,dist1)) =
     map (\(p2, (die2,dist2)) -> (p1*p2, (die1,die2,(join dist1 dist2 add)))) d2s
 
 
+
 ------EXAMPLES OF JOINT DISTRIBUTIONS------
 
 --Joint distribution of two coin flips
@@ -164,6 +168,7 @@ probabilityQuestionF :: Rational
 probabilityQuestionF = probSum 3 Heads distd6
 
 -------TALLY SHEET-------
+{-
 --Pot of dice distribution
 pot :: Dist (Die, Dist Integer)
 pot = [((9%46), (D6,d6)), ((9%46) (D8,d8)), ((14%46) (D12,d12)), ((14%46) (D20,d20))]
@@ -182,11 +187,9 @@ twoD12s = filter (\(_ ,(a,b,_)) -> ((a==D12) && (b == D12))) probDraw
 d12Prob :: Rational
 b :: (Die, Die, Dist Integer)
 (d12Prob, b) = head twoD12s
-
+-}
 twoD12s_rollProbs :: Dist Integer
 twoD12s_rollProbs = join d12 d12 add
-
-
 
 
 --Functions to use with mergeEvents
@@ -212,20 +215,20 @@ mergeEvents f xs = case xs' of
                                         (p2, _) = y
                                     in aux (p1+p2, r1) (ys ++ temp) []
                                 else aux acc ys (y:temp)
-{-}
---compactD12s :: Dist Integer
+
+compactD12s :: Dist Integer
 compactD12s = mergeEvents sameEvent twoD12s_rollProbs 
 
-twoD12s_rollProbsl :: Dist [Integer]
-twoD12s_rollProbsl = map (\(Node prob a) -> (Node prob [a])) compactD12s
+d20s_list :: Dist [Integer]
+d20s_list = listify compactD12s
 
 --Distribution of two d12's rolled 30 times
 d12s_30rolls :: Dist [Integer]
-d12s_30rolls = multiple_join twoD12s_rollProbsl 30
+d12s_30rolls = multiple_join d20s_list 30
 
 testlist :: Dist [Integer]
-testlist = [(Node (1%2) [2 .. 24]), (Node (1%2) [16..18]), (Node (1%2) [19..21]), (Node (1%2) [19..22])]
-
+testlist = [(1%2, [2 .. 24]), (1%2, [16..18]), (1%2, [19..21]), (1%2, [19..22])]
+{-
 -- Int List -> Operator -> Int 
 compareSixteen :: (Num b, Num a1, Foldable t) => t a -> (a -> a1 -> Bool) -> b
 compareSixteen sumList op = foldl(\acc x -> if (op x 16) then acc + 1 else acc) 0 sumList
