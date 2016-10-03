@@ -295,43 +295,43 @@ noRepeats (x:xs)  = if x `elem` xs
 -- The list with all possible tuples (LT, E, GT)
 tuple30 :: [(Integer, Integer, Integer)]
 tuple30 = noRepeats(makeTuples 30 30 0 0)
-{-}
+
 --Dist of all pairs of dice rolls with 30 rolls
-complete_dist :: [DistElement [DistElement [Integer]]]
+complete_dist :: Dist (Dist [Integer])
 complete_dist =
-    map (\(Node prob (_,_,dist)) -> 
-        let array_dist = map (\(Node prob val) -> (Node prob [val])) dist
+    map (\(prob, (_,_,dist)) -> 
+        let array_dist = map (\(prob, val) -> (prob, [val])) dist
             joined_rolls = multiple_join array_dist 30
-        in (Node prob joined_rolls))
+        in (prob, joined_rolls))
         probDraw
 
 --Dist of all pairs of dice rolls and their tally sheets
-complete_tallies :: [DistElement [DistElement (Integer, Integer, Integer)]]
+complete_tallies :: Dist (Dist (Integer, Integer, Integer))
 complete_tallies = 
-    map (\(Node r dist) ->
+    map (\(r, dist) ->
             let tallies = createTallySheet dist
                 merged_tallies = mergeEvents sameTally tallies 
-            in (Node r merged_tallies))
+            in (r, merged_tallies))
     complete_dist
 
 --Filters a distribution of tally sheets into their expected payouts, given a tally sheet
-filter_tallies :: Integer -> Integer -> Integer -> [DistElement Rational]
+filter_tallies :: Integer -> Integer -> Integer -> Dist Rational
 filter_tallies lt eq gt = 
-    map (\(Node r tallies) ->
+    map (\(r, tallies) ->
         let 
             ftallies =
-                filter (\(Node _ (l, e, g)) ->
+                filter (\(_, (l, e, g)) ->
                 (lt==l) && (eq==e) && (gt==g))
                 tallies
-            p_sum = foldl (\r2 (Node r1 _)->
+            p_sum = foldl (\r2 (r1, _)->
                 r1+r2) 0 ftallies
             norm_tallies =
-                map (\(Node r x) ->
-                (Node (r/p_sum) x))
+                map (\(r, x) ->
+                (r/p_sum, x))
                 ftallies
             (p1, p2, p3) = max3ps norm_tallies 0 0 0
             payout = (p1*1)+(p2*(1%2))+(p3*(1%4))-((1-p1-p2-p3)*(1%10))
-        in (Node r payout))
+        in (r, payout))
     complete_tallies
 
 expected_money_per_tsheet :: [Rational]
@@ -343,4 +343,4 @@ expected_money_per_tsheet =
     
 expected_money :: Rational
 expected_money = foldl (+) 0 expected_money_per_tsheet
--}
+
