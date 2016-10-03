@@ -166,7 +166,7 @@ probabilityQuestionF = probSum 3 Heads distd6
 -------TALLY SHEET-------
 --Pot of dice distribution
 pot :: Dist (Die, Dist Integer)
-pot = [((9%46), (D6,d6)), ((9%46) (D8,d8)), ((14%46) (D12,d12)), ((14%46) (D20,d20))]
+pot = [((9%46), (D6,d6)), ((9%46), (D8,d8)), ((14%46), (D12,d12)), ((14%46), (D20,d20))]
 
 --WE ARE DOING WITH REPLACEMENT 
 --Probability of drawing any two dice
