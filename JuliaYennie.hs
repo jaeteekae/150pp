@@ -230,7 +230,7 @@ testlist = [(1%2, [2 .. 24]), (1%2, [16..18]), (1%2, [19..21]), (1%2, [19..22])]
 -- Int List -> Operator -> Int 
 -- compareSixteen :: (Num b, Num a1, Foldable t) => t a -> (a -> a1 -> Bool) -> b
 compareSixteen sumList op = foldl(\acc x -> if (op x 16) then acc + 1 else acc) 0 sumList
-
+{-
 -- Int -> Dist List -> Operator -> Int 
 -- determineHowMany :: (Eq a, Num a, Num a2, Foldable t) => a -> [DistElement (t a1)] -> (a1 -> a2 -> Bool) -> [DistElement (t a1)]
 determineHowMany numOverUnder dlist op = filter (\(_, sumList) -> compareSixteen sumList op == numOverUnder) dlist
@@ -239,7 +239,7 @@ determineHowMany numOverUnder dlist op = filter (\(_, sumList) -> compareSixteen
 -- Int -> Dist List -> Operator -> Rational
 -- tallyProb :: (Num a2, Foldable t) => Integer -> [DistElement (t a1)] -> (a1 -> a2 -> Bool) -> Rational
 tallyProb numOverUnder dlist op = toRational(sum (map(\(prob, _)->prob)(determineHowMany numOverUnder dlist op))) + d12Prob
-{-
+
 -- Rational
 tallyProbabilityN :: Rational
 tallyProbabilityN = tallyProb 3 d12s_30rolls (>)
@@ -260,7 +260,7 @@ createTallySheet dist =
 
 
 -------GAMBLING-------
--}
+
 max3ps :: Dist a -> Rational -> Rational -> Rational -> (Rational, Rational, Rational)
 max3ps [] p1 p2 p3 = (p1, p2, p3)
 max3ps ((r, _):xs) p1 p2 p3 =
@@ -343,4 +343,4 @@ expected_money_per_tsheet =
     
 expected_money :: Rational
 expected_money = foldl (+) 0 expected_money_per_tsheet
-
+-}
