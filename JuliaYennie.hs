@@ -1,9 +1,9 @@
-{-# OPTIONS -Wall -Werror -fno-warn-name-shadowing #-}
 module PPOne
 where
 
 import Data.Ratio
 import Data.List
+import System.Environment
 
 {-
 
@@ -90,7 +90,6 @@ probabilityQuestionA_d6 :: Dist Integer
 probabilityQuestionA_d6 = d6
 probabilityQuestionA_d12 :: Dist Integer
 probabilityQuestionA_d12 = d12
-
 
 -------FUNCTIONS FOR CREATING JOINT DISTRIBUTIONS-------
 
@@ -345,3 +344,17 @@ expected_money_per_tsheet =
 expected_money :: Rational
 expected_money = foldl (+) 0 expected_money_per_tsheet
 
+main = do
+    args <- getArgs
+    if length args == 0
+        then putStrLn "Run with the arguments A, F, N, O, and/or Q to get solutions"
+    else 
+        let sol x = if x == "A" then mapM_ print ["Answer for A:", probabilityQuestionA_d6, probabilityQuestionA_d12]
+                     else if x == "F" then mapM_ print ["Answer for F:", probabilityQuestionF]
+                     else if x == "N" then mapM_ print ["Answer for N:", tallyProbabilityN]
+                     else if x == "O" then mapM_ print ["Answer for O: ", tallyProbabilityO]
+                     else if x == "Q" then mapM_ print ["Answer for Q:", expected_money]
+                     else print "Not an option"
+        in map sol args
+    --if args == ""
+        --then putStrLn "Run with the arguments A, F, N, O, and/or Q to get solutions"
