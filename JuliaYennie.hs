@@ -46,9 +46,6 @@ dEq x y =
         then tail x == filter (\a -> a /= head x) y
     else False
 
---data DistElement a = Node Rational a deriving (Show)
---type Dist a = [DistElement a]
-
 data Coin = Heads | Tails deriving (Show, Eq)
 data Die = D4 | D6 | D8 | D10 | D12 | D20 deriving (Show, Eq)
 
@@ -126,10 +123,9 @@ add d2s (p1, x) = map (\(p2, y) -> (p1*p2, x+y)) d2s
 multiple_join :: Dist [a] -> Integer -> Dist [a]
 multiple_join dist 1 = dist
 multiple_join dist n = multiple_join (join dist dist sq) (n-1)
-{-}
+
 --A join specifically for adding rolling two dice together
---dice_tup :: Num a => [DistElement (t1, [DistElement a])] -> DistElement (t, [DistElement a]) -> [DistElement (t, t1, [DistElement a])]
-dice_tup :: Num a => Dist (a, Dist b) -> (Rational, (a, Dist b)) -> Dist (a, a, Dist b)
+dice_tup :: (Num a, Num b) => Dist (a, Dist b) -> (Rational, (a, Dist b)) -> Dist (a, a, Dist b)
 dice_tup d2s (p1, (die1,dist1)) =
     map (\(p2, (die2,dist2)) -> (p1*p2, (die1,die2,(join dist1 dist2 add)))) d2s
 
@@ -137,14 +133,14 @@ dice_tup d2s (p1, (die1,dist1)) =
 ------EXAMPLES OF JOINT DISTRIBUTIONS------
 
 --Joint distribution of two coin flips
-cxc :: [DistElement [Coin]]
-cxc = join coins coins sq
+cxc :: Dist [Coin]
+cxc = join coinlist coinlist sq
 
 --Joint distribution of a d6 roll and coin flips that depend on the outcome
-distd6 :: [DistElement [Coin]]
-distd6 = join d6 coins dep
+distd6 :: Dist [Coin]
+distd6 = join d6 coinlist dep
 
--}
+{-}
 -------FILTERING A DISTRIBUTION-------
 
 -- Determine how many heads/tails are flipped in the list  
@@ -163,7 +159,7 @@ probSum numFlips flipType distType = toRational (sum (map (\(prob, _) -> prob) (
 
 --The probability of seeing 3 heads when a d6 roll determines the number of coin tosses
 -- Rational
-{-}
+
 probabilityQuestionF :: Rational
 probabilityQuestionF = probSum 3 Heads distd6
 
