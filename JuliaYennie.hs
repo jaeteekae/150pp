@@ -347,12 +347,12 @@ main = do
     if length args == 0
         then putStrLn "Run with the arguments A, F, N, O, and/or Q to get solutions"
     else 
-        let sol x = if x == "A" then mapM_ print ["Answer for A:", probabilityQuestionA_d6, probabilityQuestionA_d12]
+        let sol x:xs = if x == "A" then mapM_ print ["Answer for A:", probabilityQuestionA_d6, probabilityQuestionA_d12]
                      else if x == "F" then mapM_ print ["Answer for F:", probabilityQuestionF]
                      else if x == "N" then mapM_ print ["Answer for N:", tallyProbabilityN]
                      else if x == "O" then mapM_ print ["Answer for O: ", tallyProbabilityO]
                      else if x == "Q" then mapM_ print ["Answer for Q:", expected_money]
                      else print "Not an option"
-        in map sol args
+        in sol args 
     --if args == ""
         --then putStrLn "Run with the arguments A, F, N, O, and/or Q to get solutions"
