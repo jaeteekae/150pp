@@ -231,7 +231,7 @@ d20s_list = listify compactD12s
 
 -- Distribution of two d12's rolled 30 times
 d12s_30rolls :: Dist [Integer]
-d12s_30rolls = multiple_join d20s_list 30
+d12s_30rolls = multiple_join d20s_list 1
 
 
 -- For the purposes of testing 
@@ -258,6 +258,14 @@ tallyProbabilityN :: Rational
 tallyProbabilityN = tallyProb 3 d12s_30rolls (>)
 tallyProbabilityO :: Rational
 tallyProbabilityO = tallyProb 16 d12s_30rolls (<)
+
+tallyProbabilityNPercent:: Double
+tallyProbabilityNPercent = truncate' (fromRational (tallyProbabilityN) * 100) 2
+
+tallyProbabilityOPercent:: Double
+tallyProbabilityOPercent = truncate' (fromRational (tallyProbabilityO) * 100) 2
+
+
 
 -- NOTE: theoretically, tallyProbabilityN is the correct probability. 
 -- However, we could not get the calculation to terminate
@@ -367,8 +375,8 @@ main = do
         --mapM_ (\x -> if x == "A" then mapM_ print ["The answer to A is:",show probabilityQuestionA_d6, show probabilityQuestionA_d12]
         mapM_ (\x -> if x == "A" then printf "The answer to A is: \n 1. Throwing a single d6: \n %s \n 2. Throwing a single d12: \n %s\n" (show probabilityQuestionA_d6) (show probabilityQuestionA_d12)
                      else if x == "F" then printf "The answer to F is: \n The probability of observing exactly three heads from throwing 'N' coins from throwing a d6 is: \n %s \n In percent form: \n %s \n" (show probabilityQuestionF) ((show probabilityQuestionFPercent) ++ "%")
-                     else if x == "N" then printf "The answer to N is: \n %s \n" (show tallyProbabilityN)
-                     else if x == "O" then printf "The answer to O is: \n %s \n" (show tallyProbabilityO)
+                     else if x == "N" then printf "The answer to N is: \n P(draw d12+d12 and put 3 marks in right) == %s == %s\n" (show tallyProbabilityN) ((show tallyProbabilityNPercent) ++ "%")
+                     else if x == "O" then printf "The answer to O is: \n P(all marks in left) == %s == %s\n" (show tallyProbabilityO) ((show tallyProbabilityOPercent) ++ "%")
                      else if x == "Q" then printf "The answer to Q is: \n %s \n" (show expected_money)
                      else print "Not an option")
             args
