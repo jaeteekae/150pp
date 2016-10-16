@@ -5,6 +5,7 @@ import Data.Ratio
 import Data.List
 import System.Environment
 import Text.Printf
+import Data.Sequence
 
 {-
 
@@ -232,11 +233,7 @@ d20s_list = listify compactD12s
 
 -- Distribution of two d12's rolled 30 times
 d12s_30rolls :: Dist [Integer]
-<<<<<<< HEAD
 d12s_30rolls = multiple_join d20s_list d20s_list 30
-=======
-d12s_30rolls = multiple_join d20s_list 1
->>>>>>> d192a0f2758453a40601f92ebfc5b44998eda397
 
 
 -- For the purposes of testing 
@@ -286,6 +283,12 @@ createTallySheet dist =
         in (prob, (underSixteen, equalSixteen, overSixteen)))
     dist
 
+please_be_the_answer =
+    let tallied = createTallySheet d12s_30rolls
+        only_three = filter (\(_, (_,_,c)) -> c==3) tallied
+        rats = map (\(prob, tal) -> prob) only_three
+        seq_rats = fromList rats
+    in foldl (\acc (rat, _)-> acc+(fromRational rat)) 0 only_three
 
 -------GAMBLING-------
 
