@@ -48,6 +48,10 @@ dEq x y =
         then tail x == filter (\a -> a /= head x) y
     else False
 
+--dShow :: Show a => Dist a -> String 
+--dShow [] = "\n"
+--edShow (rational,q):ds = show("(" ++ show fromRational(rational) ++ ", " ++ show q ++ ")\n" ++ dShow ds)
+
 data Coin = Heads | Tails deriving (Show, Eq)
 data Die = D4 | D6 | D8 | D10 | D12 | D20 deriving (Show, Eq)
 
@@ -92,6 +96,11 @@ probabilityQuestionA_d6 :: Dist Integer
 probabilityQuestionA_d6 = d6
 probabilityQuestionA_d12 :: Dist Integer
 probabilityQuestionA_d12 = d12
+
+
+probabilityQuestionA_d6_Dec = map (\(r, x) -> (fromRational(r), x)) probabilityQuestionA_d6
+probabilityQuestionA_d12_Dec = map (\(r, x) -> (fromRational(r), x)) probabilityQuestionA_d12
+
 
 -------FUNCTIONS FOR CREATING JOINT DISTRIBUTIONS-------
 
@@ -157,8 +166,12 @@ probSum numFlips flipType distType = toRational (sum (map (\(prob, _) -> prob) (
 probabilityQuestionF :: Rational
 probabilityQuestionF = probSum 3 Heads distd6
 
+truncate' :: Double -> Int -> Double
+truncate' x n = (fromIntegral (floor (x * t))) / t
+    where t = 10^n
 
-probabilityQuestionFDecimal = fromRational(probabilityQuestionF)
+probabilityQuestionFPercent :: Double 
+probabilityQuestionFPercent = truncate' (fromRational(probabilityQuestionF) * 100) 2
 
 -------TALLY SHEET-------
 
@@ -219,7 +232,11 @@ d20s_list = listify compactD12s
 
 -- Distribution of two d12's rolled 30 times
 d12s_30rolls :: Dist [Integer]
+<<<<<<< HEAD
 d12s_30rolls = multiple_join d20s_list d20s_list 30
+=======
+d12s_30rolls = multiple_join d20s_list 1
+>>>>>>> d192a0f2758453a40601f92ebfc5b44998eda397
 
 
 -- For the purposes of testing 
@@ -246,6 +263,14 @@ tallyProbabilityN :: Rational
 tallyProbabilityN = tallyProb 3 d12s_30rolls (>)
 tallyProbabilityO :: Rational
 tallyProbabilityO = tallyProb 16 d12s_30rolls (<)
+
+tallyProbabilityNPercent:: Double
+tallyProbabilityNPercent = truncate' (fromRational (tallyProbabilityN) * 100) 2
+
+tallyProbabilityOPercent:: Double
+tallyProbabilityOPercent = truncate' (fromRational (tallyProbabilityO) * 100) 2
+
+
 
 -- NOTE: theoretically, tallyProbabilityN is the correct probability. 
 -- However, we could not get the calculation to terminate
@@ -353,10 +378,10 @@ main = do
         then putStrLn "Run with the arguments A, F, N, O, and/or Q to get solutions"
     else 
         --mapM_ (\x -> if x == "A" then mapM_ print ["The answer to A is:",show probabilityQuestionA_d6, show probabilityQuestionA_d12]
-        mapM_ (\x -> if x == "A" then printf "The answer to A is: \n 1. The distribution of integers results from throwing a single d6 dice: \n %s \n 2. The distribution of integers results from throwing a single d12 dice \n %s\n" (show probabilityQuestionA_d6) (show probabilityQuestionA_d12)
-                     else if x == "F" then printf "The answer to F is: \n The probability of observing exactly three heads from throwing 'N' coins from throwing a d6 is: \n %s \n In decimal form: \n %s \n" (show probabilityQuestionF) (show probabilityQuestionFDecimal)
-                     else if x == "N" then printf "The answer to N is: \n %s \n" (show tallyProbabilityN)
-                     else if x == "O" then printf "The answer to O is: \n %s \n" (show tallyProbabilityO)
+        mapM_ (\x -> if x == "A" then printf "The answer to A is: \n 1. Throwing a single d6: \n %s \n 2. Throwing a single d12: \n %s\n" (show probabilityQuestionA_d6) (show probabilityQuestionA_d12)
+                     else if x == "F" then printf "The answer to F is: \n The probability of observing exactly three heads from throwing 'N' coins from throwing a d6 is: \n %s \n In percent form: \n %s \n" (show probabilityQuestionF) ((show probabilityQuestionFPercent) ++ "%")
+                     else if x == "N" then printf "The answer to N is: \n P(draw d12+d12 and put 3 marks in right) == %s == %s\n" (show tallyProbabilityN) ((show tallyProbabilityNPercent) ++ "%")
+                     else if x == "O" then printf "The answer to O is: \n P(all marks in left) == %s == %s\n" (show tallyProbabilityO) ((show tallyProbabilityOPercent) ++ "%")
                      else if x == "Q" then printf "The answer to Q is: \n %s \n" (show expected_money)
                      else print "Not an option")
             args
