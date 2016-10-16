@@ -117,9 +117,9 @@ add :: Num a => Dist a -> (Rational, a) -> Dist a
 add d2s (p1, x) = map (\(p2, y) -> (p1*p2, x+y)) d2s
 
 -- Join a distribution with itself n times
-multiple_join :: Dist [a] -> Integer -> Dist [a]
-multiple_join dist 1 = dist
-multiple_join dist n = multiple_join (join dist dist sq) (n-1)
+multiple_join :: Dist [a] -> Dist [a] -> Integer -> Dist [a]
+multiple_join dist orig 1 = dist
+multiple_join dist orig n = multiple_join (join dist orig sq) orig (n-1)
 
 -- A join specifically for adding rolling two dice together
 dice_tup :: Num b => Dist (a, Dist b) -> (Rational, (a, Dist b)) -> Dist (a, a, Dist b)
@@ -170,7 +170,8 @@ pot = [((9%46), (D6,d6)), ((9%46), (D8,d8)), ((14%46), (D12,d12)), ((14%46), (D2
 -- Note: We are doing this WITH replacement 
 probDraw :: Dist (Die, Die, Dist Integer)
 probDraw = let draw2 = join pot pot dice_tup
-            in map (\(prob, (d1, d2, dist)) -> (prob, (d1, d2, (mergeEvents sameEvent dist)))) draw2
+               pair  = map (\(prob, (d1, d2, dist)) -> (prob, (d1, d2, (mergeEvents sameEvent dist)))) draw2
+           in mergeEvents sameDicePair draw2
 
 -- Probability of drawing two d12s, filtered to decrease problem size
 twoD12s :: Dist (Die, Die, Dist Integer)
@@ -218,7 +219,7 @@ d20s_list = listify compactD12s
 
 -- Distribution of two d12's rolled 30 times
 d12s_30rolls :: Dist [Integer]
-d12s_30rolls = multiple_join d20s_list 30
+d12s_30rolls = multiple_join d20s_list d20s_list 30
 
 
 -- For the purposes of testing 
@@ -303,7 +304,7 @@ complete_dist :: Dist (Dist [Integer])
 complete_dist =
     map (\(prob, (_,_,dist)) -> 
         let array_dist = map (\(prob, val) -> (prob, [val])) dist
-            joined_rolls = multiple_join array_dist 30
+            joined_rolls = multiple_join array_dist array_dist 30
         in (prob, joined_rolls))
         probDraw
 
